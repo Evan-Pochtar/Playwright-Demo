@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwright Demo Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        #loading {
+            color: blue;
+        }
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        #iframe-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Playwright Feature Demo</h1>
+    
+    <div class="section">
+        <h2>Basic Interactions</h2>
+        <button id="clickButton">Click Me</button>
+        <p id="clickResult" class="hidden">Button was clicked!</p>
+        
+        <input type="text" id="textInput" placeholder="Type something here">
+        <p>Text entered: <span id="textOutput"></span></p>
+    </div>
+    
+    <div class="section">
+        <h2>Form Elements</h2>
+        <form id="demoForm">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <div>
+                <label for="dropdown">Select an option:</label>
+                <select id="dropdown" name="dropdown">
+                    <option value="">--Please choose--</option>
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div>
+            <div>
+                <input type="checkbox" id="agreement" name="agreement">
+                <label for="agreement">I agree to terms</label>
+            </div>
+            <button type="submit" id="submitButton">Submit Form</button>
+        </form>
+        <p id="formResult" class="hidden">Form submitted successfully!</p>
+    </div>
+    
+    <div class="section">
+        <h2>AJAX Content</h2>
+        <button id="loadDataButton">Load Data</button>
+        <p id="loading" class="hidden">Loading...</p>
+        <table id="dataTable" class="hidden">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>File Upload</h2>
+        <input type="file" id="fileUpload">
+        <p id="fileInfo"></p>
+    </div>
+    
+    <div class="section">
+        <h2>Dialogs</h2>
+        <button id="alertButton">Show Alert</button>
+        <button id="confirmButton">Show Confirm</button>
+        <button id="promptButton">Show Prompt</button>
+        <p id="dialogResult"></p>
+    </div>
+    
+    <div class="section">
+        <h2>Iframe Content</h2>
+        <div id="iframe-container">
+            <iframe id="demoFrame" srcdoc="<html><body><h3>I am an iframe</h3><button id='frameButton'>Click Me</button><p id='frameResult' style='display:none'>Iframe button clicked!</p></body></html>" width="100%" height="100"></iframe>
+        </div>
+    </div>
+    
+    <div id="notification">Notification Message</div>
+    
+    <script>
+        // Basic interactions
+        document.getElementById('clickButton').addEventListener('click', () => {
+            document.getElementById('clickResult').classList.remove('hidden');
+        });
+        
+        document.getElementById('textInput').addEventListener('input', (e) => {
+            document.getElementById('textOutput').textContent = e.target.value;
+        });
+        
+        // Form handling
+        document.getElementById('demoForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            document.getElementById('formResult').classList.remove('hidden');
+        });
+        
+        // AJAX content
+        document.getElementById('loadDataButton').addEventListener('click', () => {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('dataTable');
+            
+            loading.classList.remove('hidden');
+            table.classList.add('hidden');
+            
+            // Simulate AJAX request
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                const mockData = [
+                    { id: 1, name: 'Item 1', value: 'Value 1' },
+                    { id: 2, name: 'Item 2', value: 'Value 2' },
+                    { id: 3, name: 'Item 3', value: 'Value 3' }
+                ];
+                
+                mockData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td>${item.name}</td>
+                        <td>${item.value}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                table.classList.remove('hidden');
+            }, 1000);
+        });
+        
+        // File upload
+        document.getElementById('fileUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileInfo').textContent = `Selected file: ${file.name} (${file.type}, ${file.size} bytes)`;
+            }
+        });
+        
+        // Dialogs
+        document.getElementById('alertButton').addEventListener('click', () => {
+            alert('This is an alert dialog');
+            document.getElementById('dialogResult').textContent = 'Alert was acknowledged';
+        });
+        
+        document.getElementById('confirmButton').addEventListener('click', () => {
+            const result = confirm('Please confirm this action');
+            document.getElementById('dialogResult').textContent = `Confirm result: ${result}`;
+        });
+        
+        document.getElementById('promptButton').addEventListener('click', () => {
+            const result = prompt('Please enter your name', '');
+            document.getElementById('dialogResult').textContent = `Prompt result: ${result || 'cancelled'}`;
+        });
+        
+        // Handle iframe button click
+        window.addEventListener('message', (event) => {
+            if (event.data === 'iframe-click') {
+                showNotification('Iframe button was clicked!');
+            }
+        });
+        
+        // Show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Setup iframe interaction once loaded
+        window.onload = () => {
+            const iframe = document.getElementById('demoFrame');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            iframeDoc.getElementById('frameButton').addEventListener('click', () => {
+                iframeDoc.getElementById('frameResult').style.display = 'block';
+                window.parent.postMessage('iframe-click', '*');
+            });
+        };
+    </script>
+</body>
+</html>
